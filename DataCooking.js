@@ -21,6 +21,9 @@ function drawChart(chartname, config)
         case 'StackedBarChart':
             getStackedBarChart(config);
             break;
+        case 'KMeansChart':
+            getKMeansChart(config);
+            break;
         default :
             break;
     }
@@ -499,4 +502,37 @@ function getStackedBarChart(config)
             .text(function(d) { return d; });
     });
 
+}
+
+
+function getKMeansChart(config)
+{
+    var newAxis = new processConfig(config);
+    console.log(
+        newAxis.colorTool + newAxis.width + newAxis.height
+    );
+    function drawLegend(newAxis) {
+        var legend = newAxis.svg.selectAll(".legend")
+            .data(newAxis.color.domain())
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function (d, i) {
+                return "translate(0," + i * 20 + ")";
+            });
+
+        legend.append("rect")
+            .attr("x", newAxis.width - 18)
+            .attr("width", 18)
+            .attr("height", 18)
+            .style("fill", newAxis.colorTool);
+
+        legend.append("text")
+            .attr("x", newAxis.width - 24)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text(function (d) {
+                return d;
+            });
+    }
 }
