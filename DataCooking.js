@@ -199,7 +199,6 @@ function getPopulation(config)
     });
 }
 
-
 function getHeatMap(config)
 {
     var margin = { top: 50, right: 0, bottom: 100, left: 170 },
@@ -224,20 +223,16 @@ function getHeatMap(config)
         },
         function(error, data) {
 
-            day1 = {}
+            days = {}
             minYear = d3.min(data, function(d){
                 if(d.sex == 1)
-                    day1[d.year + ' 남자'] = d.age;
+                    days[d.year + ' 남자'] = d.age;
                 else
-                    day1[d.year + ' 여자'] = d.age;
+                    days[d.year + ' 여자'] = d.age;
                 return d.year;})
-            buckets = d3.max(data, function(d){ return d.people}) / 2
-            console.log(buckets)
+            days = Object.keys(days);
 
-            for(var key in day1)
-            {
-                days.push(key)
-            }
+            buckets = d3.max(data, function(d){ return d.people}) / 2
 
             var colorScale = d3.scale.quantile()
                 .domain([0, buckets - 1, d3.max(data, function (d) { return d.people; })])
@@ -314,7 +309,7 @@ function getHeatMap(config)
 function getGroupBarChart(config)
 {
     var margin = {top: 20, right: 20, bottom: 30, left: 100},
-        width = config.width ,
+        width = config.width,
         height = config.height - margin.top - margin.bottom;
 
     var x0 = d3.scale.ordinal()
@@ -344,49 +339,23 @@ function getGroupBarChart(config)
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     d3.csv(config.dataSource, function(error, data) {
+        data = convertFormat(data);
 
-        ageKey={}
-        yearKey={}
-        data.forEach(function(d)
-        {
-            ageKey[d.age] = d.year;
-            yearKey[d.year] = d.age;
+        var ageNames = d3.keys(data[0]).filter(function(key) { return key !== "year"; });
 
-
-            d.sex = +d.sex;
-            d.people = +d.people;
-        })
-        ageNames = Object.keys(ageKey);
-        yearNames = Object.keys(yearKey);
-
-        convertData = [];
-        yearNames.forEach(function(year)
-            {
-                people = []
-                data.forEach(function(d)
-                    {
-                        console.log(d.sex);
-                        if(d.year == year && d.sex == 1)
-                            people.push({name: d.age, value: d.people});
-                    }
-                );
-
-                convertData.push({year:year, value:people})
-            }
-        );
-
+        data.forEach(function(d) {
+            d.ages = ageNames.map(function(name) { return {name: name, value: +d[name]}; });
+        });
 
         x0.domain(data.map(function(d) { return d.year; }));
         x1.domain(ageNames).rangeRoundBands([0, x0.rangeBand()]);
-        y.domain([0, d3.max(data, function(d) { return d.people;  })]);
-        console.log(d3.max(data, function(d) {return d.people;  }));
-        //x axis
+        y.domain([0, d3.max(data, function(d) { return d3.max(d.ages, function(d) { return d.value; }); })]);
+
         svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
             .call(xAxis);
 
-        //y axis
         svg.append("g")
             .attr("class", "y axis")
             .call(yAxis)
@@ -398,22 +367,17 @@ function getGroupBarChart(config)
             .text("Population");
 
         var state = svg.selectAll(".state")
-            .data(convertData)
+            .data(data)
             .enter().append("g")
             .attr("class", "g")
-            .attr("transform", function(d) {
-                return "translate(" + x0(d.year) + ",0)"; });
+            .attr("transform", function(d) { return "translate(" + x0(d.year) + ",0)"; });
 
         state.selectAll("rect")
-            .data(function(d) {
-                console.log(d);
-                return d.value; })
+            .data(function(d) { return d.ages; })
             .enter().append("rect")
             .attr("width", x1.rangeBand())
-            .attr("x", function(d) {
-                return x1(d.name); })
-            .attr("y", function(d) {
-                return y(d.value); })
+            .attr("x", function(d) { return x1(d.name); })
+            .attr("y", function(d) { return y(d.value); })
             .attr("height", function(d) { return height - y(d.value); })
             .style("fill", function(d) { return color(d.name); });
 
@@ -441,9 +405,9 @@ function getGroupBarChart(config)
 
 function getStackedBarChart(config)
 {
-    var margin = {top: 20, right: 30, bottom: 30, left: 30},
-        width = config.width ,
-        height = config.height;
+    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = config.width;
+    height = config.height;
 
     var x = d3.scale.ordinal()
         .rangeRoundBands([0, width], .1);
@@ -467,70 +431,24 @@ function getStackedBarChart(config)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
-        .attr("transform", "translate(" + (margin.left + 30) + "," + margin.top + ")");
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     d3.csv(config.dataSource, function(error, data) {
 
-        ageKey={};
-        yearKey={};
-        yearsKey={};
-        data.forEach(function(d)
-        {
-            ageKey[d.age] = d.year;
-            yearsKey[d.year] = d.age
-            yearKey[d.year + ', 남자'] = d.age;
-            yearKey[d.year + ', 여자'] = d.age;
+        //data Converting
+        data = convertFormat(data);
 
-            d.age = +d.age
-            d.sex = +d.sex;
-            d.people = +d.people;
-
-        })
-        ageNames = Object.keys(ageKey);
-        yearNames = Object.keys(yearKey);
-        years = Object.keys(yearsKey);
-
-        color.domain(ageNames);
-
-        convertData = [];
-        years.forEach(function(year)
-            {
-                people1 = {}
-                people2 = {}
-                data.forEach(function(d)
-                    {
-
-                        if(d.year == year)
-                        {
-
-                            if(d.sex == 1)
-                                people1[d.age] = d.people
-                            else
-                                people2[d.age] = d.people
-                        }
-
-
-                    }
-                );
-
-                convertData.push({year:year + ', 남자', value:people1})
-                convertData.push({year:year + ', 여자', value:people2})
-            }
-        );
-
-        convertData.forEach(function(d) {
+        color.domain(d3.keys(data[0]).filter(function(key) { return key !== "year"; }));
+        data.forEach(function(d) {
             var y0 = 0;
-            d.ages = color.domain().map(function(age) {
-                console.log(age + " " + +d.value[age]);
-                return {name: age, y0: y0, y1: y0 += +d.value[age]}; });
+            d.ages = color.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
             d.total = d.ages[d.ages.length - 1].y1;
         });
 
+        data.sort(function(a, b) { return b.total - a.total; });
 
-        convertData.sort(function(a, b) { return b.total - a.total; });
-
-        x.domain(yearNames.map(function(d) { return d; }));
-        y.domain([0, d3.max(convertData, function(d) { return d.total; })]);
+        x.domain(data.map(function(d) { return d.year; }));
+        y.domain([0, d3.max(data, function(d) { return d.total; })]);
 
         svg.append("g")
             .attr("class", "x axis")
@@ -547,9 +465,8 @@ function getStackedBarChart(config)
             .style("text-anchor", "end")
             .text("Population");
 
-        //Put Data
         var state = svg.selectAll(".state")
-            .data(convertData)
+            .data(data)
             .enter().append("g")
             .attr("class", "g")
             .attr("transform", function(d) { return "translate(" + x(d.year) + ",0)"; });
@@ -557,11 +474,8 @@ function getStackedBarChart(config)
         state.selectAll("rect")
             .data(function(d) { return d.ages; })
             .enter().append("rect")
-            .attr("width", x.rangeBand() * 2 / 3)
-            .attr("y", function(d) {
-                console.log(d.y1)
-
-                return y(d.y1); })
+            .attr("width", x.rangeBand())
+            .attr("y", function(d) { return y(d.y1); })
             .attr("height", function(d) { return y(d.y0) - y(d.y1); })
             .style("fill", function(d) { return color(d.name); });
 
@@ -583,7 +497,6 @@ function getStackedBarChart(config)
             .attr("dy", ".35em")
             .style("text-anchor", "end")
             .text(function(d) { return d; });
-
     });
-}
 
+}
