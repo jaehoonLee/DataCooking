@@ -99,8 +99,6 @@ var processConfig = function (config){
 
 function getPopulation(config)
 {
-    console.log(CHART_STACKEDBARCHART);
-    convertFormat("a");
 
     var margin = {top: 20, right: 40, bottom: 30, left: 40},
         width = config.width - margin.left - margin.right,
@@ -539,6 +537,7 @@ function getStackedBarChart(config)
                 this.colorTool = d3.scale.ordinal().range(config['color']['tool']);
 
         };
+
         this.dataSource = config.dataSource;
         this.xAxis = d3.svg.axis()
             .scale(this.x)
