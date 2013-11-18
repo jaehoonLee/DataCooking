@@ -3,8 +3,8 @@ STATIC_URL = "http://127.0.0.1:8000/static/DataCooking/";
 
 document.write("<script src=\"http://d3js.org/d3.v3.min.js\"></script>");
 document.write("<script src=\"http://d3js.org/colorbrewer.v1.min.js\"></script>");
-//document.write("<script type=\"text/javascript\" src=" + "\"" + STATIC_URL + "Status.js\"" + "></script>");
-//document.write("<script type=\"text/javascript\" src=" + "\"" + STATIC_URL + "FormatConverter.js\"" + "></script>");
+document.write("<script type=\"text/javascript\" src=" + "\"" + STATIC_URL + "Status.js\"" + "></script>");
+document.write("<script type=\"text/javascript\" src=" + "\"" + STATIC_URL + "FormatConverter.js\"" + "></script>");
 
 function drawChart(chartname, config)
 {
@@ -717,70 +717,70 @@ function getKMeansChart(config)
     }
 }
 
-function getPieChart(config) {
-    var config = {
-        'panel' : '#piechart',
-        'margin': {top: 20, right: 20, bottom: 30, left: 20},
-        'width': 960,
-        'height': 500,
-        //'radius' : ,
-
-        'dataSource' : "dataeq.csv", // '{{DataURL}}'
-        'pieData' : ,
-        'color': {tool: 'category10', Data : 'Species'}
-    };
-    var width = 960,
-        height = 620,
-        radius = Math.min(width, height) / 2;
-
-    var color = d3.scale.category20c();
-
-    var arc = d3.svg.arc()
-        .outerRadius(radius - 20)
-        .innerRadius(0);
-
-    var pie = d3.layout.pie()
-        .sort(null)
-        .value(function(d) { return d.population; });
-
-    var svg = d3.select("body").append("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .append("g")
-        .attr("transform", "translate(" + 0+ "," + 20 + ")");
-
-
-    d3.csv("data.csv", function(error, data) {
-
-        data.forEach(function(d) {
-            d.population = +d.population;
-        });
-
-        var subject = svg
-            .append("text")
-            .attr("class", "subject")
-            .attr("transform",  "translate(" + (width/2 -40) + "," + 0 + ")")
-            .text("Population Chart");
-
-        var g = svg.selectAll(".arc")
-            .data(pie(data))
-            .enter().append("g")
-            .attr("class", "arc")
-            .attr('transform', "translate("+width/2+","+height/2+")");
-
-        g.append("path")
-            .attr("d", arc)
-            .style("fill", function(d) { return color(d.data.age); })
-            .on("mouseover", function(){
-                d3.select(this).style("fill", "green");})
-            .on("mouseout", function(){d3.select(this).style("fill", function(d) { return color(d.data.age);})});
-
-
-        g.append("text")
-            .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
-            .attr("dy", ".35em")
-            .style("text-anchor", "middle")
-            .text(function(d) { return d.data.age; });
-
-    });
-}
+//function getPieChart(config) {
+//    var config = {
+//        'panel' : '#piechart',
+//        'margin': {top: 20, right: 20, bottom: 30, left: 20},
+//        'width': 960,
+//        'height': 500,
+//        //'radius' : ,
+//
+//        'dataSource' : "dataeq.csv", // '{{DataURL}}'
+//        'pieData' : ,
+//        'color': {tool: 'category10', Data : 'Species'}
+//    };
+//    var width = 960,
+//        height = 620,
+//        radius = Math.min(width, height) / 2;
+//
+//    var color = d3.scale.category20c();
+//
+//    var arc = d3.svg.arc()
+//        .outerRadius(radius - 20)
+//        .innerRadius(0);
+//
+//    var pie = d3.layout.pie()
+//        .sort(null)
+//        .value(function(d) { return d.population; });
+//
+//    var svg = d3.select("body").append("svg")
+//        .attr("width", width)
+//        .attr("height", height)
+//        .append("g")
+//        .attr("transform", "translate(" + 0+ "," + 20 + ")");
+//
+//
+//    d3.csv("data.csv", function(error, data) {
+//
+//        data.forEach(function(d) {
+//            d.population = +d.population;
+//        });
+//
+//        var subject = svg
+//            .append("text")
+//            .attr("class", "subject")
+//            .attr("transform",  "translate(" + (width/2 -40) + "," + 0 + ")")
+//            .text("Population Chart");
+//
+//        var g = svg.selectAll(".arc")
+//            .data(pie(data))
+//            .enter().append("g")
+//            .attr("class", "arc")
+//            .attr('transform', "translate("+width/2+","+height/2+")");
+//
+//        g.append("path")
+//            .attr("d", arc)
+//            .style("fill", function(d) { return color(d.data.age); })
+//            .on("mouseover", function(){
+//                d3.select(this).style("fill", "green");})
+//            .on("mouseout", function(){d3.select(this).style("fill", function(d) { return color(d.data.age);})});
+//
+//
+//        g.append("text")
+//            .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+//            .attr("dy", ".35em")
+//            .style("text-anchor", "middle")
+//            .text(function(d) { return d.data.age; });
+//
+//    });
+//}
