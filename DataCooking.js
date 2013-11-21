@@ -132,7 +132,7 @@ function getPopulation(config)
         .attr("class", "title")
         .attr("dy", ".71em")
 
-    d3.csv(config.dataSource, function(error, data) {
+    d3[config.format](config.dataSource, function(error, data) {
 //d3.csv('{{ DataURL }}', function (error, data) {
 
         // Convert strings to numbers.
@@ -309,10 +309,10 @@ function getHeatMap(config)
             .attr("height", this.height + this.margin['top'] + this.margin['bottom'])
             .append("g")
             .attr("transform", "translate(" + this.margin['left'] + "," + this.margin['top'] + ")");
-
+        this.format = config.format
     }
     var newAxis = new processConfig(config);
-    d3.csv(config.dataSource,
+    d3[config.format](config.dataSource,
         function(d) {
             return {
                 year: +d.year,
@@ -441,7 +441,7 @@ function getGroupBarChart(config)
 
     }
     var newAxis = new processConfig(config);
-    d3.csv(config.dataSource, function(error, data) {
+    d3[config.format](config.dataSource, function(error, data) {
         data = convertFormat(data);
 
         var ageNames = d3.keys(data[0]).filter(function(key) { return key !== "year"; });
@@ -556,7 +556,7 @@ function getStackedBarChart(config)
 
     }
     var newAxis = new processConfig(config);
-    d3.csv(config.dataSource, function(error, data) {
+    d3[config.format](config.dataSource, function(error, data) {
 
         //data Converting
         data = convertFormat(data);
@@ -629,7 +629,7 @@ function getKMeansChart(config)
 {
     var newAxis = new processConfig(config);
 
-    d3.csv(newAxis.dataSource, type, function (error, data) {
+    d3[config.format](newAxis.dataSource, type, function (error, data) {
 
         newAxis.x.domain(d3.extent(data, function (d) {
 //            if(d[newAxis.xData] < 0)
